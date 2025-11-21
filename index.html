@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,maximum-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <title>Roulette Display</title>
+  <title>3D Roulette Display</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <style>
     * {
@@ -31,7 +31,205 @@
       bottom: 0;
     }
 
-    /* Vollbild-Gewinner-Animation */
+    /* 3D Roulette Rad Animation */
+    .roulette-wheel-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(10,10,10,0.98) 0%, rgba(0,0,0,1) 100%);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+      perspective: 1500px;
+    }
+
+    .roulette-wheel-container.active {
+      display: flex;
+    }
+
+    .wheel-wrapper {
+      position: relative;
+      width: 90vmin;
+      height: 90vmin;
+      max-width: 700px;
+      max-height: 700px;
+    }
+
+    /* Äußerer Holzrahmen */
+    .wheel-outer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #4a3828, #2a1810);
+      box-shadow: 
+        0 0 0 12px #d4a024,
+        0 0 0 16px #8b6914,
+        0 0 0 18px #4a3828,
+        0 30px 80px rgba(0,0,0,0.9),
+        inset 0 8px 20px rgba(0,0,0,0.6);
+      transform-style: preserve-3d;
+      animation: wheelTilt 0.6s ease forwards;
+    }
+
+    @keyframes wheelTilt {
+      from { transform: rotateX(0deg); }
+      to { transform: rotateX(20deg); }
+    }
+
+    /* Hauptrad */
+    .roulette-wheel {
+      position: absolute;
+      width: 88%;
+      height: 88%;
+      top: 6%;
+      left: 6%;
+      border-radius: 50%;
+      background: #2a1810;
+      box-shadow: 
+        inset 0 0 60px rgba(0,0,0,0.9),
+        0 0 20px rgba(0,0,0,0.8);
+      overflow: hidden;
+    }
+
+    .wheel-rotate {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      animation: spinWheel 5s cubic-bezier(0.17, 0.67, 0.28, 0.99) forwards;
+    }
+
+    @keyframes spinWheel {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(var(--spin-rotation, 2160deg)); }
+    }
+
+    /* Zahlen-Pockets */
+    .wheel-pockets {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+    }
+
+    .pocket {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: 0;
+      transform-origin: center center;
+    }
+
+    .pocket-segment {
+      position: absolute;
+      width: 11%;
+      height: 45%;
+      left: 44.5%;
+      top: 5%;
+      clip-path: polygon(20% 0%, 80% 0%, 60% 100%, 40% 100%);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 8%;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: white;
+      text-shadow: 0 2px 6px rgba(0,0,0,1);
+      border-left: 1px solid #8b6914;
+      border-right: 1px solid #8b6914;
+    }
+
+    .pocket-segment.red {
+      background: linear-gradient(180deg, #dc2626 0%, #991b1b 70%, #7f1d1d 100%);
+    }
+
+    .pocket-segment.black {
+      background: linear-gradient(180deg, #1f2937 0%, #111827 70%, #000000 100%);
+    }
+
+    .pocket-segment.green {
+      background: linear-gradient(180deg, #15803d 0%, #166534 70%, #0f4a24 100%);
+    }
+
+    /* Zentrum */
+    .wheel-center {
+      position: absolute;
+      width: 22%;
+      height: 22%;
+      top: 39%;
+      left: 39%;
+      border-radius: 50%;
+      background: 
+        radial-gradient(circle at 35% 35%, #d4a024 0%, #8b6914 40%, #5a4510 100%);
+      box-shadow: 
+        0 0 0 4px #1a0f08,
+        0 6px 20px rgba(0,0,0,0.9),
+        inset 0 3px 8px rgba(255,215,0,0.4),
+        inset 0 -3px 8px rgba(0,0,0,0.6);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .center-logo {
+      width: 60%;
+      height: 60%;
+      border-radius: 50%;
+      background: radial-gradient(circle, #1a0f08 0%, #0a0505 100%);
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);
+    }
+
+    /* Ball mit korrekter Positionierung */
+    .roulette-ball {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #ffffff, #e5e5e5 45%, #999999);
+      box-shadow: 
+        0 0 15px rgba(255,255,255,0.9),
+        0 4px 10px rgba(0,0,0,0.7),
+        inset -3px -3px 5px rgba(0,0,0,0.4),
+        inset 2px 2px 3px rgba(255,255,255,0.6);
+      z-index: 150;
+      animation: ballSpin 5s cubic-bezier(0.17, 0.67, 0.28, 0.99) forwards;
+    }
+
+    @keyframes ballSpin {
+      0% {
+        top: 10%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      60% {
+        top: 15%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(2160deg);
+      }
+      80% {
+        top: 25%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(2880deg);
+      }
+      95% {
+        top: 35%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(3240deg);
+      }
+      100% {
+        top: var(--ball-final-y, 38%);
+        left: var(--ball-final-x, 50%);
+        transform: translate(-50%, -50%) rotate(3600deg);
+      }
+    }
+
+    /* Vollbild-Gewinner */
     .winner-fullscreen {
       position: fixed;
       top: 0;
@@ -55,28 +253,70 @@
       font-weight: 900;
       text-align: center;
       animation: scaleInBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      text-shadow: 0 4px 20px rgba(0,0,0,0.8);
-      border: 6px solid #ffd700;
+      text-shadow: 0 8px 30px rgba(0,0,0,0.9);
+      border: 8px solid #ffd700;
       border-radius: 50%;
       width: 70vmin;
       height: 70vmin;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 60px rgba(255, 215, 0, 0.8), 0 0 120px rgba(255, 215, 0, 0.5), inset 0 0 40px rgba(0,0,0,0.3);
+      box-shadow: 
+        0 0 60px rgba(255, 215, 0, 0.8), 
+        0 0 120px rgba(255, 215, 0, 0.5),
+        0 20px 60px rgba(0,0,0,0.8),
+        inset 0 0 40px rgba(0,0,0,0.3);
       color: #fff;
+      position: relative;
+      transform-style: preserve-3d;
+    }
+
+    .winner-number-display::before {
+      content: '';
+      position: absolute;
+      top: -20px;
+      left: -20px;
+      right: -20px;
+      bottom: -20px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,215,0,0.3), transparent 70%);
+      z-index: -1;
+      animation: glowPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.1); }
     }
 
     .winner-number-display.red {
-      background: radial-gradient(circle, #dc2626 0%, #991b1b 70%);
+      background: radial-gradient(circle at 30% 30%, #ef4444 0%, #dc2626 40%, #991b1b 100%);
+      box-shadow: 
+        0 0 60px rgba(220, 38, 38, 0.9), 
+        0 0 120px rgba(220, 38, 38, 0.6),
+        0 20px 60px rgba(0,0,0,0.8),
+        inset 0 5px 20px rgba(255,255,255,0.2),
+        inset 0 -5px 20px rgba(0,0,0,0.5);
     }
 
     .winner-number-display.black {
-      background: radial-gradient(circle, #1f2937 0%, #111827 70%);
+      background: radial-gradient(circle at 30% 30%, #374151 0%, #1f2937 40%, #111827 100%);
+      box-shadow: 
+        0 0 60px rgba(31, 41, 55, 0.9), 
+        0 0 120px rgba(31, 41, 55, 0.6),
+        0 20px 60px rgba(0,0,0,0.9),
+        inset 0 5px 20px rgba(255,255,255,0.1),
+        inset 0 -5px 20px rgba(0,0,0,0.7);
     }
 
     .winner-number-display.green {
-      background: radial-gradient(circle, #15803d 0%, #166534 70%);
+      background: radial-gradient(circle at 30% 30%, #22c55e 0%, #15803d 40%, #166534 100%);
+      box-shadow: 
+        0 0 60px rgba(21, 128, 61, 0.9), 
+        0 0 120px rgba(21, 128, 61, 0.6),
+        0 20px 60px rgba(0,0,0,0.8),
+        inset 0 5px 20px rgba(255,255,255,0.2),
+        inset 0 -5px 20px rgba(0,0,0,0.5);
     }
 
     @keyframes fadeIn {
@@ -86,18 +326,18 @@
 
     @keyframes scaleInBounce {
       0% { 
-        transform: scale(0) rotate(-180deg);
+        transform: scale(0) rotate(-180deg) rotateY(0deg);
         opacity: 0;
       }
       60% { 
-        transform: scale(1.15) rotate(10deg);
+        transform: scale(1.15) rotate(10deg) rotateY(360deg);
         opacity: 1;
       }
       80% { 
-        transform: scale(0.95) rotate(-5deg);
+        transform: scale(0.95) rotate(-5deg) rotateY(360deg);
       }
       100% { 
-        transform: scale(1) rotate(0deg);
+        transform: scale(1) rotate(0deg) rotateY(360deg);
       }
     }
 
@@ -117,57 +357,116 @@
     /* Roulette-Tafel */
     .roulette-section {
       flex: 1;
-      background: linear-gradient(135deg, #1a0f0f 0%, #0f1a0f 100%);
-      padding: 6px;
+      background: linear-gradient(145deg, rgba(26,15,15,0.95) 0%, rgba(15,26,15,0.95) 100%);
+      padding: 8px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
       overflow: auto;
+      box-shadow: inset 0 4px 20px rgba(0,0,0,0.5);
     }
 
-    /* Zero - ganz oben */
     .zero-row {
-      height: 35px;
-      border-radius: 6px;
-      border: 2px solid #16a34a;
+      height: 40px;
+      border-radius: 8px;
+      border: 2px solid #22c55e;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 900;
-      font-size: 1.3rem;
+      font-size: 1.4rem;
       cursor: pointer;
-      background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+      background: linear-gradient(145deg, #16a34a 0%, #15803d 50%, #166534 100%);
       color: #fff;
       transition: all 0.2s ease;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8), inset 0 2px 0 rgba(255, 255, 255, 0.15);
+      text-shadow: 0 3px 10px rgba(0, 0, 0, 0.9);
+      box-shadow: 
+        0 6px 15px rgba(0, 0, 0, 0.8), 
+        inset 0 2px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -2px 5px rgba(0, 0, 0, 0.3);
       user-select: none;
     }
 
-    .zero-row:active {
-      transform: scale(0.98);
+    .zero-row:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.9), inset 0 2px 0 rgba(255, 255, 255, 0.3);
     }
 
-    /* Hauptbereich: 3 Spalten nebeneinander */
+    .zero-row:active {
+      transform: translateY(0) scale(0.98);
+    }
+
     .table-grid {
       flex: 1;
       display: grid;
-      grid-template-columns: 45px 45px 1fr;
-      gap: 5px;
+      grid-template-columns: 48px 48px 1fr;
+      gap: 6px;
       min-height: 0;
     }
 
-    /* Spalte 1: BLACK, RED, EVEN, ODD */
     .color-bets {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
     }
 
     .color-bet {
       flex: 1;
-      border-radius: 4px;
-      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 6px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 0.6rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.7),
+        inset 0 2px 0 rgba(255, 255, 255, 0.1);
+      user-select: none;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+      min-height: 30px;
+      padding: 3px;
+    }
+
+    .color-bet:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8), inset 0 2px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    .color-bet:active {
+      transform: translateY(0) scale(0.95);
+    }
+
+    .bet-black {
+      background: linear-gradient(145deg, #374151 0%, #1f2937 50%, #111827 100%);
+      border-color: #000;
+      color: #fff;
+    }
+
+    .bet-red {
+      background: linear-gradient(145deg, #ef4444 0%, #dc2626 50%, #991b1b 100%);
+      border-color: #7f1d1d;
+      color: #fff;
+    }
+
+    .bet-even, .bet-odd {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.05));
+      border-color: rgba(255, 215, 0, 0.5);
+      color: #ffd700;
+    }
+
+    .dozen-bets {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .dozen-bet {
+      flex: 1;
+      border-radius: 6px;
+      border: 2px solid rgba(100, 150, 255, 0.6);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -175,72 +474,31 @@
       font-size: 0.55rem;
       cursor: pointer;
       transition: all 0.2s ease;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+      box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.7),
+        inset 0 2px 0 rgba(100, 150, 255, 0.2);
       user-select: none;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
-      min-height: 28px;
-      padding: 2px;
-    }
-
-    .color-bet:active {
-      transform: scale(0.95);
-    }
-
-    .bet-black {
-      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-      border-color: #000;
-      color: #fff;
-    }
-
-    .bet-red {
-      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-      border-color: #7f1d1d;
-      color: #fff;
-    }
-
-    .bet-even, .bet-odd {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
-      border-color: rgba(255, 215, 0, 0.4);
-      color: #ffd700;
-    }
-
-    /* Spalte 2: 1st 12, 2nd 12, 3rd 12 */
-    .dozen-bets {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .dozen-bet {
-      flex: 1;
-      border-radius: 4px;
-      border: 1.5px solid rgba(100, 150, 255, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      font-size: 0.5rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
-      user-select: none;
-      background: linear-gradient(135deg, rgba(100, 150, 255, 0.2), rgba(50, 100, 200, 0.15));
+      background: linear-gradient(145deg, rgba(100, 150, 255, 0.25), rgba(50, 100, 200, 0.15));
       color: #88aaff;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
-      min-height: 28px;
-      padding: 2px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+      min-height: 30px;
+      padding: 3px;
       line-height: 1.1;
     }
 
-    .dozen-bet:active {
-      transform: scale(0.95);
+    .dozen-bet:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8), inset 0 2px 0 rgba(100, 150, 255, 0.3);
     }
 
-    /* Spalte 3: Zahlen-Grid */
+    .dozen-bet:active {
+      transform: translateY(0) scale(0.95);
+    }
+
     .numbers-container {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
       min-height: 0;
     }
 
@@ -249,86 +507,59 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(12, 1fr);
-      gap: 3px;
+      gap: 4px;
       min-height: 0;
     }
 
     .num {
-      border: 1.5px solid rgba(255, 255, 255, 0.3);
-      border-radius: 3px;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 900;
-      font-size: 0.95rem;
+      font-size: 1rem;
       cursor: pointer;
       transition: all 0.2s ease;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.7), 
+        inset 0 2px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.3);
       user-select: none;
-      min-height: 28px;
+      min-height: 30px;
+    }
+
+    .num:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8), inset 0 2px 0 rgba(255, 255, 255, 0.3);
     }
 
     .num:active {
-      transform: scale(0.95);
+      transform: translateY(0) scale(0.95);
     }
 
     .num.red {
-      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+      background: linear-gradient(145deg, #ef4444 0%, #dc2626 50%, #991b1b 100%);
       border-color: #7f1d1d;
       color: #fff;
-      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+      text-shadow: 0 3px 8px rgba(0, 0, 0, 0.9);
     }
 
     .num.black {
-      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      background: linear-gradient(145deg, #374151 0%, #1f2937 50%, #111827 100%);
       border-color: #000;
       color: #fff;
-      text-shadow: 0 2px 6px rgba(0, 0, 0, 1);
+      text-shadow: 0 3px 8px rgba(0, 0, 0, 1);
     }
 
-    /* Historie */
-.history-section {
-    background: #000;
-    display: flex;
-    flex-direction: column;
-    border-top: 1px solid rgba(255, 215, 0, 0.2);
-    position: relative;
-    padding-left: 8px;
-}
-
-    .history-buttons {
-      position: absolute;
-      top: 8px;
-      right: 8px;
+    .history-section {
+      background: linear-gradient(180deg, #000 0%, #0a0a0a 100%);
       display: flex;
-      gap: 6px;
-      z-index: 100;
-    }
-
-    .clear-btn, .fullscreen-btn {
-      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-      color: white;
-      border: 1.5px solid #7f1d1d;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 900;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.6rem;
-      letter-spacing: 0.5px;
-      box-shadow: 0 2px 6px rgba(220, 38, 38, 0.5);
-      user-select: none;
-    }
-
-    .fullscreen-btn {
-      background: linear-gradient(135deg, #15803d 0%, #166534 100%);
-      border-color: #16a34a;
-      box-shadow: 0 2px 6px rgba(21, 128, 61, 0.5);
-      padding: 6px 10px;
-    }
-
-    .clear-btn:active, .fullscreen-btn:active {
-      transform: scale(0.95);
+      flex-direction: column;
+      border-top: 2px solid rgba(255, 215, 0, 0.3);
+      position: relative;
+      padding-left: 8px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.8);
     }
 
     .history-container {
@@ -340,165 +571,92 @@
 
     .history-track {
       display: flex;
-      gap: 6px;
-      padding: 3px;
+      gap: 8px;
+      padding: 4px;
       height: 100%;
       align-items: center;
     }
 
     .history-number {
-      flex: 0 0 40px;
-      height: 40px;
-      border-radius: 4px;
+      flex: 0 0 45px;
+      height: 45px;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 900;
-      font-size: 1.3rem;
-      border: 1.5px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+      font-size: 1.4rem;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 
+        0 4px 10px rgba(0, 0, 0, 0.8),
+        inset 0 2px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.3);
       animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     }
 
     .history-number.red {
-      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+      background: linear-gradient(145deg, #ef4444 0%, #dc2626 50%, #991b1b 100%);
       color: white;
-      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+      text-shadow: 0 3px 8px rgba(0, 0, 0, 0.9);
       border-color: #7f1d1d;
     }
 
     .history-number.black {
-      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      background: linear-gradient(145deg, #374151 0%, #1f2937 50%, #111827 100%);
       color: white;
-      text-shadow: 0 2px 6px rgba(0, 0, 0, 1);
+      text-shadow: 0 3px 8px rgba(0, 0, 0, 1);
       border-color: #000;
     }
 
     .history-number.green {
-      background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+      background: linear-gradient(145deg, #22c55e 0%, #15803d 50%, #166534 100%);
       color: white;
-      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+      text-shadow: 0 3px 8px rgba(0, 0, 0, 0.9);
       border-color: #16a34a;
-      font-weight: 900;
-      font-size: 1.3rem;
-      border: 1.5px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8
     }
 
     @keyframes slideIn {
       from {
         opacity: 0;
-        transform: scale(0.5);
+        transform: scale(0.5) translateX(-50px);
       }
       to {
         opacity: 1;
-        transform: scale(1);
+        transform: scale(1) translateX(0);
       }
     }
 
-    /* Hervorhebungen */
     .grayed {
       opacity: 0.15;
       filter: grayscale(100%) brightness(0.5);
-      cursor: default;
-      pointer-events: none;
     }
 
     .winner {
-      animation: winPulse 1s ease-in-out infinite;
-      box-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 60px rgba(255, 215, 0, 0.6), inset 0 0 15px rgba(255, 215, 0, 0.3);
+      animation: winPulse 1.5s ease-in-out infinite;
+      box-shadow: 
+        0 0 40px rgba(255, 215, 0, 1), 
+        0 0 80px rgba(255, 215, 0, 0.6),
+        0 8px 20px rgba(0, 0, 0, 0.9),
+        inset 0 0 20px rgba(255, 215, 0, 0.4);
       border-color: #ffd700;
       border-width: 3px;
       z-index: 20;
+      cursor: pointer !important;
+      pointer-events: auto !important;
     }
 
     @keyframes winPulse {
       0%, 100% {
         transform: scale(1);
-        box-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 60px rgba(255, 215, 0, 0.6);
+        box-shadow: 0 0 40px rgba(255, 215, 0, 1), 0 0 80px rgba(255, 215, 0, 0.6);
       }
       50% {
         transform: scale(1.05);
-        box-shadow: 0 0 50px rgba(255, 215, 0, 1), 0 0 100px rgba(255, 215, 0, 0.8);
+        box-shadow: 0 0 60px rgba(255, 215, 0, 1), 0 0 120px rgba(255, 215, 0, 0.8);
       }
     }
 
-    /* Landscape Modus für Smartphones */
-    @media (orientation: landscape) and (max-height: 500px) {
-      .main-wrapper {
-        flex-direction: row;
-      }
-
-      .roulette-section {
-        flex: 1;
-      }
-
-      .history-section {
-        border-top: none;
-        border-left: 1px solid rgba(255, 215, 0, 0.2);
-      }
-
-      .history-track {
-        flex-direction: column;
-        height: auto;
-        width: 100%;
-      }
-
-      .history-container {
-        overflow-x: hidden;
-        overflow-y: auto;
-      }
-
-      .history-number {
-        flex: 0 0 60px;
-        width: 100%;
-        height: 60px;
-        font-size: 1.5rem;
-      }
-
-      .history-number.green {
-        height: 70px;
-        font-size: 1.8rem;
-      }
-
-      .num {
-        font-size: 1rem;
-        min-height: 30px;
-      }
-
-      .zero-row {
-        height: 40px;
-        font-size: 1.5rem;
-      }
-    }
-
-    /* Extra kleine Bildschirme */
     @media (max-width: 380px) {
-      .table-grid {
-        grid-template-columns: 40px 40px 1fr;
-        gap: 4px;
-      }
-
-      .color-bet {
-        font-size: 0.5rem;
-        min-height: 25px;
-      }
-
-      .dozen-bet {
-        font-size: 0.45rem;
-        min-height: 25px;
-      }
-
-      .num {
-        font-size: 0.85rem;
-        min-height: 25px;
-      }
-
-      .zero-row {
-        font-size: 1.1rem;
-        height: 32px;
-      }
-
       .winner-number-display {
         font-size: 8rem;
       }
@@ -506,20 +664,33 @@
   </style>
 </head>
 <body>
-  <!-- Vollbild Gewinner-Animation -->
+  <!-- 3D Roulette Rad -->
+  <div class="roulette-wheel-container" id="rouletteWheelContainer">
+    <div class="wheel-wrapper">
+      <div class="wheel-outer">
+        <div class="roulette-wheel">
+          <div class="wheel-rotate" id="wheelRotate">
+            <div class="wheel-pockets" id="wheelPockets"></div>
+          </div>
+          <div class="wheel-center">
+            <div class="center-logo"></div>
+          </div>
+        </div>
+        <div class="roulette-ball" id="rouletteBall"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vollbild Gewinner -->
   <div class="winner-fullscreen" id="winnerFullscreen">
     <div class="winner-number-display" id="winnerNumberDisplay"></div>
   </div>
 
   <div class="main-wrapper" id="mainWrapper">
-    <!-- Roulette-Tafel -->
     <div class="roulette-section">
-      <!-- Zero ganz oben -->
       <div class="zero-row zero" data-number="0">0</div>
 
-      <!-- 3-Spalten-Layout -->
       <div class="table-grid">
-        <!-- Spalte 1: BLACK, RED, EVEN, ODD -->
         <div class="color-bets">
           <div class="color-bet bet-even" data-type="range" data-value="low">1-18</div>
           <div class="color-bet bet-even" data-type="parity" data-value="even">EVEN</div>
@@ -529,21 +700,18 @@
           <div class="color-bet bet-even" data-type="range" data-value="high">19-36</div>
         </div>
 
-        <!-- Spalte 2: 1st 12, 2nd 12, 3rd 12 -->
         <div class="dozen-bets">
           <div class="dozen-bet" data-type="dozen" data-value="1">1st<br>12</div>
           <div class="dozen-bet" data-type="dozen" data-value="2">2nd<br>12</div>
           <div class="dozen-bet" data-type="dozen" data-value="3">3rd<br>12</div>
         </div>
 
-        <!-- Spalte 3: Zahlen-Grid -->
         <div class="numbers-container">
           <div id="numbersGrid" class="numbers-grid"></div>
         </div>
       </div>
     </div>
 
-    <!-- Historie -->
     <aside class="history-section">
       <div class="history-container">
         <div id="historyTrack" class="history-track"></div>
@@ -554,18 +722,48 @@
   <script>
     const RED_NUMBERS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
     const BLACK_NUMBERS = new Set([2,4,6,8,10,11,13,15,17,20,22,24,26,28,29,31,33,35]);
+    const WHEEL_NUMBERS = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
 
     const numbersGrid = document.getElementById('numbersGrid');
     const historyTrack = document.getElementById('historyTrack');
     const winnerFullscreen = document.getElementById('winnerFullscreen');
     const winnerNumberDisplay = document.getElementById('winnerNumberDisplay');
     const mainWrapper = document.getElementById('mainWrapper');
+    const rouletteWheelContainer = document.getElementById('rouletteWheelContainer');
+    const wheelRotate = document.getElementById('wheelRotate');
+    const rouletteBall = document.getElementById('rouletteBall');
+    const wheelPockets = document.getElementById('wheelPockets');
 
     let selectedNumber = null;
     let history = [];
     let isShowingWinner = false;
 
-    // Zahlen-Grid initialisieren: 3 Spalten × 12 Reihen (1-36)
+    function initRouletteWheel() {
+      wheelPockets.innerHTML = '';
+      const degreesPerPocket = 360 / WHEEL_NUMBERS.length;
+      
+      WHEEL_NUMBERS.forEach((num, index) => {
+        const pocket = document.createElement('div');
+        pocket.className = 'pocket';
+        pocket.style.transform = `rotate(${index * degreesPerPocket}deg)`;
+        
+        const segment = document.createElement('div');
+        segment.className = 'pocket-segment';
+        segment.textContent = num;
+        
+        if (num === 0) {
+          segment.classList.add('green');
+        } else if (RED_NUMBERS.has(num)) {
+          segment.classList.add('red');
+        } else if (BLACK_NUMBERS.has(num)) {
+          segment.classList.add('black');
+        }
+        
+        pocket.appendChild(segment);
+        wheelPockets.appendChild(pocket);
+      });
+    }
+
     function initNumbersGrid() {
       for (let num = 1; num <= 36; num++) {
         const field = document.createElement('div');
@@ -588,16 +786,14 @@
     }
 
     function selectNumber(num) {
-      if (isShowingWinner && selectedNumber === num) {
-        resetTableKeepHistory();
+      // Wenn gerade eine Animation läuft, ignoriere den Klick
+      if (!isShowingWinner && selectedNumber !== null) {
         return;
       }
 
+      // Wenn bereits ein Gewinner angezeigt wird, setze zurück
       if (isShowingWinner) {
         resetTableKeepHistory();
-        setTimeout(() => {
-          startNumberSelection(num);
-        }, 100);
         return;
       }
 
@@ -607,14 +803,56 @@
     function startNumberSelection(num) {
       selectedNumber = num;
       isShowingWinner = false;
-      showWinnerAnimation(num);
+      
+      showRouletteWheelAnimation(num);
 
       setTimeout(() => {
-        hideWinnerAnimation();
-        addToHistory(num);
-        highlightWinners(num);
-        isShowingWinner = true;
-      }, 2000);
+        hideRouletteWheelAnimation();
+        showWinnerAnimation(num);
+
+        setTimeout(() => {
+          hideWinnerAnimation();
+          addToHistory(num);
+          highlightWinners(num);
+          isShowingWinner = true;
+        }, 2500);
+      }, 5500);
+    }
+
+    function showRouletteWheelAnimation(num) {
+      const numberIndex = WHEEL_NUMBERS.indexOf(num);
+      const degreesPerSegment = 360 / WHEEL_NUMBERS.length;
+      
+      // Wir wollen, dass das Rad so dreht, dass die Ziel-Tasche oben landet (12 Uhr)
+      const fullRotations = 6;
+      
+      // Berechne wie viel das Rad drehen muss, damit die Ziel-Tasche oben ist
+      const targetRotation = -(numberIndex * degreesPerSegment);
+      const totalRotation = (fullRotations * 360) + targetRotation + (Math.random() * 3 - 1.5);
+      
+      wheelRotate.style.setProperty('--spin-rotation', `${totalRotation}deg`);
+
+      // Ball landet immer oben (12 Uhr Position) bei etwa 38% Radius
+      const ballX = 50; // Zentrum horizontal
+      const ballY = 50 - 38; // Oben, 38% vom Zentrum
+      
+      rouletteBall.style.setProperty('--ball-final-x', `${ballX}%`);
+      rouletteBall.style.setProperty('--ball-final-y', `${ballY}%`);
+
+      mainWrapper.classList.add('hidden');
+      rouletteWheelContainer.classList.add('active');
+
+      wheelRotate.style.animation = 'none';
+      rouletteBall.style.animation = 'none';
+      
+      setTimeout(() => {
+        wheelRotate.style.animation = 'spinWheel 5s cubic-bezier(0.17, 0.67, 0.28, 0.99) forwards';
+        rouletteBall.style.animation = 'ballSpin 5s cubic-bezier(0.17, 0.67, 0.28, 0.99) forwards';
+      }, 50);
+    }
+
+    function hideRouletteWheelAnimation() {
+      rouletteWheelContainer.classList.remove('active');
     }
 
     function showWinnerAnimation(num) {
@@ -629,7 +867,6 @@
         winnerNumberDisplay.classList.add('black');
       }
 
-      mainWrapper.classList.add('hidden');
       winnerFullscreen.classList.add('active');
     }
 
@@ -714,14 +951,9 @@
         historyTrack.appendChild(div);
       });
 
-      // Auto-scroll zu neuester Zahl
       if (historyTrack.children.length > 0) {
         historyTrack.children[0].scrollIntoView({ behavior: 'smooth', inline: 'start' });
       }
-    }
-
-    function clearHistory() {
-      resetTableKeepHistory();
     }
 
     function resetTable() {
@@ -741,22 +973,46 @@
     }
 
     initNumbersGrid();
+    initRouletteWheel();
     document.querySelector('.zero-row').addEventListener('click', () => selectNumber(0));
 
-    window.selectNumber = selectNumber;
-    window.clearHistory = clearHistory;
-
-    window.toggleFullscreen = function() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-          console.log('Fullscreen error:', err);
-        });
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
+    document.querySelectorAll('.color-bet, .dozen-bet').forEach(bet => {
+      bet.addEventListener('click', () => {
+        const type = bet.getAttribute('data-type');
+        const value = bet.getAttribute('data-value');
+        
+        let matchingNumbers = [];
+        
+        for (let num = 1; num <= 36; num++) {
+          let matches = false;
+          
+          if (type === 'color') {
+            if (value === 'red' && RED_NUMBERS.has(num)) matches = true;
+            if (value === 'black' && BLACK_NUMBERS.has(num)) matches = true;
+          } else if (type === 'parity') {
+            if (value === 'even' && num % 2 === 0) matches = true;
+            if (value === 'odd' && num % 2 === 1) matches = true;
+          } else if (type === 'range') {
+            if (value === 'low' && num >= 1 && num <= 18) matches = true;
+            if (value === 'high' && num >= 19 && num <= 36) matches = true;
+          } else if (type === 'dozen') {
+            const dozenNum = parseInt(value);
+            if (dozenNum === 1 && num >= 1 && num <= 12) matches = true;
+            if (dozenNum === 2 && num >= 13 && num <= 24) matches = true;
+            if (dozenNum === 3 && num >= 25 && num <= 36) matches = true;
+          }
+          
+          if (matches) matchingNumbers.push(num);
         }
-      }
-    };
+        
+        if (matchingNumbers.length > 0) {
+          const randomNum = matchingNumbers[Math.floor(Math.random() * matchingNumbers.length)];
+          selectNumber(randomNum);
+        }
+      });
+    });
+
+    window.selectNumber = selectNumber;
   </script>
 </body>
 </html>
